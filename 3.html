@@ -1,0 +1,3503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <head>
+        <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>罪犯再犯风险评估系统</title>
+    <style>
+        /* 在 <style> 标签中添加以下样式 */
+.risk-level-select {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    width: 100px;
+}
+
+.risk-level-text {
+    font-weight: bold;
+    font-size: 24px;
+    display: inline-block;
+    padding: 5px;
+}
+
+        .risk-level-select {
+        padding: 5px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+            width: 100px;  /* 调整宽度 */
+}
+
+.risk-level-select option[value="较低危险"] {
+    color: var(--success-color);
+}
+
+.risk-level-select option[value="一般危险"] {
+    color: #f39c12;
+}
+
+.risk-level-select option[value="较高危险"] {
+    color: var(--danger-color);
+}
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+
+        /* 登录界面样式 */
+        .login-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-header h2 {
+            color: var(--dark-color);
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .login-header p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .login-form .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .login-form label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark-color);
+            font-weight: bold;
+        }
+
+        .login-form input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .login-form input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        /* 主系统界面样式 */
+        .main-container {
+            width: 100%;
+        }
+
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+        }
+
+        .user-info span {
+            font-size: 16px;
+        }
+
+        .user-info button {
+            background: rgba(231, 76, 60, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .user-info button:hover {
+            background: rgba(231, 76, 60, 1);
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        h1 {
+            color: var(--dark-color);
+            margin-bottom: 10px;
+        }
+        .form-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--light-color);
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="date"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .section {
+            margin-bottom: 30px;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: white;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        .question {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        .question:hover {
+            background-color: #f0f0f0;
+        }
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 8px;
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        #reportOutput {
+            margin-top: 40px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            display: none;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .report-table th, .report-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .report-table th {
+            background-color: var(--light-color);
+        }
+        .report-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .risk-high {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+        .risk-medium {
+            color: #f39c12;
+            font-weight: bold;
+        }
+        .risk-low {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+        .progress-container {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            border-radius: 5px;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 报告样式 */
+        .report-container {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+        }
+        .report-title {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .report-meta {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .meta-label {
+            font-weight: bold;
+        }
+        .risk-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .risk-score, .risk-level {
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+        .risk-score {
+            background-color: #e8f4fc;
+            border: 1px solid #3498db;
+        }
+        .score-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2980b9;
+        }
+        .score-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        .risk-level {
+            color: white;
+            min-width: 120px;
+        }
+        .level-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .level-label {
+            font-size: 14px;
+        }
+        .risk-high {
+            background-color: #e74c3c;
+        }
+        .risk-medium {
+            background-color: #f39c12;
+        }
+        .risk-low {
+            background-color: #2ecc71;
+        }
+        .progress-container {
+            flex-grow: 1;
+            height: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            margin: 0 20px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #2ecc71, #f39c12, #e74c3c);
+        }
+        .report-section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+        .section-title {
+            color: #2c3e50;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #bdc3c7;
+            margin-bottom: 15px;
+        }
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        .report-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        .report-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .report-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        .additional-info {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .recommendations {
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .recommendations ul, .recommendations ol {
+            margin-left: 20px;
+        }
+        .sub-options-list {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        .sub-options-list li {
+            margin-bottom: 5px;
+        }
+        .report-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 50px;
+        }
+        .signature, .date {
+            margin-left: 50px;
+            text-align: center;
+        }
+        .signature-line, .date-line {
+            width: 200px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 5px;
+        }
+        .signature-label, .date-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        /* Dify工作流跳转按钮样式 */
+        .dify-workflow-link {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }
+
+        .dify-workflow-link .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .dify-workflow-link .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .workflow-icon {
+            font-size: 24px;
+            font-style: normal;
+        }
+
+        .workflow-desc {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        @media print {
+            .dify-workflow-link {
+                display: none;
+            }
+        }
+
+        /* 主页样式 */
+        .home-container {
+            padding: 20px 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--success-color));
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            color: var(--dark-color);
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .feature-arrow {
+            font-size: 24px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 16px;
+        }
+
+        /* 历史数据样式 */
+        .history-container {
+            padding: 20px 0;
+        }
+
+        .history-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-input, .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            min-width: 200px;
+        }
+
+        .btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .history-list {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .history-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .history-item:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 3px 15px rgba(52, 152, 219, 0.1);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .history-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+
+        .history-risk {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .history-risk.high {
+            background-color: var(--danger-color);
+        }
+
+        .history-risk.medium {
+            background-color: #f39c12;
+        }
+
+        .history-risk.low {
+            background-color: var(--success-color);
+        }
+
+        .history-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .history-detail {
+            font-size: 14px;
+        }
+
+        .history-detail strong {
+            color: var(--dark-color);
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        /* 消息提示样式 */
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+            max-width: 450px;
+            word-wrap: break-word;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 16px;
+        }
+
+        .message-success {
+            background: linear-gradient(135deg, var(--success-color), #27ae60);
+            border-left: 4px solid #fff;
+        }
+
+        .message-error {
+            background-color: var(--danger-color);
+        }
+
+        .message-info {
+            background-color: var(--primary-color);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: none;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+            .report-container {
+                padding: 0;
+                max-width: 100%;
+            }
+            .report-section {
+                margin-bottom: 20px;
+            }
+        }
+
+
+    </style>
+
+</head>
+<body>
+    <!-- 登录界面 -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h2>🔐 用户登录</h2>
+                <p>罪犯再犯风险评估系统</p>
+            </div>
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" name="username" required placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" name="password" required placeholder="请输入密码">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary login-btn">登录</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 主系统界面 -->
+    <div id="mainContainer" class="main-container" style="display: none;">
+        <div class="container">
+            <header>
+                <h1>罪犯再犯风险评估系统</h1>
+                <p>请根据实际情况填写以下评估量表</p>
+                <div class="dify-workflow-link">
+                    <a href="http://33.66.10.52/workflow/950s4IxSINdbNeJd" target="_blank" class="btn btn-primary">
+                        <i class="workflow-icon">🤖</i>
+                        访问AI智能评估工作流
+                    </a>
+                    <p class="workflow-desc">点击上方按钮访问基于AI的智能评估工作流，获得更专业的风险评估建议</p>
+                </div>
+                <div class="user-info">
+                    <span>欢迎，<span id="currentUser">ghjy@123</span></span>
+                    <button class="btn btn-danger btn-small" onclick="logout()">退出登录</button>
+                </div>
+            </header>
+
+        <div class="tab-container no-print">
+            <div class="tabs">
+                <div class="tab active" onclick="openTab('home-tab')">主页</div>
+                <div class="tab" onclick="openTab('form-tab')">填写评估表</div>
+                <div class="tab" onclick="openTab('report-tab')">查看评估报告</div>
+                <div class="tab" onclick="openTab('history-tab')">历史数据</div>
+            </div>
+        </div>
+
+        <!-- 主页内容 -->
+        <div id="home-tab" class="tab-content active">
+            <div class="home-container">
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="openTab('form-tab')">
+                        <div class="feature-icon">📝</div>
+                        <h3>问卷填写</h3>
+                        <p>填写详细的评估量表，生成专业的风险评估报告</p>
+                        <div class="feature-arrow">→</div>
+                    </div>
+
+                    <div class="feature-card" onclick="openTab('history-tab')">
+                        <div class="feature-icon">📊</div>
+                        <h3>数据保存</h3>
+                        <p>查看历史评估报告，管理所有评估数据</p>
+                        <div class="feature-arrow">→</div>
+                    </div>
+
+                    <div class="feature-card" onclick="openAIAnalysis()">
+                        <div class="feature-icon">🤖</div>
+                        <h3>AI分析</h3>
+                        <p>使用AI智能分析，获得更专业的风险评估建议</p>
+                        <div class="feature-arrow">→</div>
+                    </div>
+                </div>
+
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalAssessments">0</div>
+                        <div class="stat-label">总评估数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="thisMonth">0</div>
+                        <div class="stat-label">本月评估</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="highRisk">0</div>
+                        <div class="stat-label">高风险</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="form-tab" class="tab-content">
+
+
+
+
+
+
+            <form id="riskAssessmentForm">
+                <div class="form-header">
+                    <div class="form-group">
+                        <label for="prisonArea">监区</label>
+                        <input type="text" id="prisonArea" name="prisonArea" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">姓名</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="prisonerNumber">编号</label>
+                        <input type="text" id="prisonerNumber" name="prisonerNumber">
+                    </div>
+                    <div class="form-group">
+                        <label for="releaseDate">刑释时间</label>
+                        <input type="date" id="releaseDate" name="releaseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="assessmentDate">评估时间</label>
+                        <input type="date" id="assessmentDate" name="assessmentDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="assessor">评估员</label>
+                        <input type="text" id="assessor" name="assessor" required>
+                    </div>
+                </div>
+
+                <!-- (一) 犯罪经历 -->
+                <div class="section">
+                    <div class="section-title">（一）犯罪经历</div>
+
+                    <div class="question">
+                        <label>1、此前有未成年前科劣迹（<input type="number" name="juvenileRecordCount" min="0" style="width: 60px;">次）或成年前科劣迹（<input type="number" name="adultRecordCount" min="0" style="width: 60px;">次）。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q1" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q1" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>2、曾因定罪而被处监禁（包括少教、劳教、戒毒、服刑）。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q2" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q2" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>3、曾有异地改造经历（包括少教、劳教、戒毒、服刑）。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q3" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q3" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>4、曾在监禁机构内有较严重违纪受到过如警告、严管、禁闭等处罚。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q4" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q4" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>5、曾在监禁场所内再次犯罪。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q5" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q5" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>6、曾在缓刑或假释期间再次犯罪。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q6" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q6" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>7、此次犯罪类型为盗窃。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q7" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q7" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>8、此次犯罪类型为涉毒类。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q8" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q8" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>9、此次犯罪刑期3年及以下。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q9" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q9" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>10、此次犯罪是团伙犯罪主犯。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q10" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q10" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>11、初次犯罪时年龄未满18周岁。（初次犯罪年龄：<input type="number" name="firstCrimeAge" min="0" max="100" style="width: 60px;">周岁）</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q11" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q11" value="否" required> 否</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (二) 早期社会化问题 -->
+                <div class="section">
+                    <div class="section-title">（二）早期社会化问题</div>
+
+                    <div class="question">
+                        <label>12、成年前有过性生活。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q12" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q12" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>13、成年前不与父母共同生活。（一年内与父母共同生活不足2个月）</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q13" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q13" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>14、成年前父母离婚。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q14" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q14" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>15、在单亲家庭长大。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q15" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q15" value="否" required> 否</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (三) 家庭婚姻 -->
+                <div class="section">
+                    <div class="section-title">（三）家庭婚姻</div>
+
+                    <div class="question">
+                        <label>16、婚姻或恋爱关系状况差。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q16" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q16" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q16" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q16" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>17、与父母关系状况差。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q17" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q17" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q17" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q17" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>18、与子女关系状况差。（无子女不勾选）</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q18" value="1"> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q18" value="2"> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q18" value="3"> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q18" value="4"> 4(非常不符合)</label>
+                            <label class="option-label"><input type="radio" name="q18" value="无子女" checked> 无子女</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>19、直系亲属中曾有犯罪。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q19" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q19" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>20、半年前与其它亲属失联或关系十分疏远。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q20" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q20" value="否" required> 否</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (四) 教育就业 -->
+                <div class="section">
+                    <div class="section-title">（四）教育就业</div>
+
+                    <div class="question">
+                        <label>21、经常失业。（有三年或者以上失去工作）</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q21" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q21" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>22、就业从未满一年。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q22" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q22" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>23、工作环境具有一定犯罪风险。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q23" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q23" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>24、有一些犯罪相关特殊技能。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q24" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q24" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>25、文化程度小学或以下水平。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q25" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q25" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>26、文化程度初中或以下水平。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q26" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q26" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>27、在校期间曾因学业不良，留级、主动辍学或长期逃课。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q27" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q27" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>28、在校期间曾收到过处分、停学或除名。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q28" value="是" required> 是</label>
+                            <label class="option-label"><input type="radio" name="q28" value="否" required> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>29、对教育等相关活动没有兴趣。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q29" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q29" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q29" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q29" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>30、与同学或同事存在持久矛盾或关系疏离。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q30" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q30" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q30" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q30" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                  <div class="question">
+                        <label>31、与上级存在长期矛盾或关系紧张。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q31" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q31" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q31" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q31" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (五) 同伴交往 -->
+                <div class="section">
+                    <div class="section-title">（五）同伴交往</div>
+
+                    <div class="question">
+                        <label>32、几乎没有正常交往的朋友。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q32" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q32" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q32" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q32" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>33、有罪犯朋友。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q33" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q33" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q33" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q33" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>34、重视与朋友的关系。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q34" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q34" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q34" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q34" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (六) 兴趣爱好 -->
+                <div class="section">
+                    <div class="section-title">（六）兴趣爱好</div>
+
+                    <div class="question">
+                        <label>35、几乎不参加积极的有益活动。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q35" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q35" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q35" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q35" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>36、业余时间利用不当。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q36" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q36" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q36" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q36" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>37、闲暇时间很少与家人一起。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q37" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q37" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q37" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q37" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (七) 再社会化预期 -->
+                <div class="section">
+                    <div class="section-title">（七）再社会化预期</div>
+
+                    <div class="question">
+                        <label>38、技能训练或学习教育与就业的关联程度低。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q38" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q38" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q38" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q38" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>39、没有就业计划。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q39" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q39" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q39" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q39" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>40、没有就业技能。（本次评估前）</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q40" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q40" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q40" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q40" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>41、不愿就业。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q41" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q41" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q41" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q41" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>42、难以落实安置帮教工作。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q42" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q42" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q42" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q42" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>43、社会保障状况差。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q43" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q43" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q43" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q43" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>44、生活自理能力差。（身患严重疾病要选此项）</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q44" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q44" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q44" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q44" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (八) 成瘾问题 -->
+                <div class="section">
+                    <div class="section-title">（八）成瘾问题</div>
+
+                    <div class="question">
+                        <label>45、曾有酗酒问题。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q45" value="是" required onchange="checkAddictionProblems()"> 是</label>
+                            <label class="option-label"><input type="radio" name="q45" value="否" required onchange="checkAddictionProblems()"> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>46、曾有吸毒问题。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q46" value="是" required onchange="checkAddictionProblems()"> 是</label>
+                            <label class="option-label"><input type="radio" name="q46" value="否" required onchange="checkAddictionProblems()"> 否</label>
+                        </div>
+                        <!-- 毒品种类输入栏 -->
+                        <div id="drugTypeContainer" style="margin-top: 10px; display: none;">
+                            <label for="drugType">详细说明毒品种类：</label>
+                            <input type="text" id="drugType" name="drugType" style="width: 300px; padding: 5px;">
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>47、曾有赌博问题。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q47" value="是" required onchange="checkAddictionProblems()"> 是</label>
+                            <label class="option-label"><input type="radio" name="q47" value="否" required onchange="checkAddictionProblems()"> 否</label>
+                        </div>
+                    </div>
+
+                    <!-- 成瘾问题导致的结果 (初始隐藏) -->
+                    <div id="addictionConsequences" style="display: none; margin-top: 20px; padding: 15px; background-color: #f5f5f5; border-radius: 5px;">
+                        <p style="font-weight: bold; margin-bottom: 15px;">当第45-47题中任一项为"是"，请勾选因成瘾问题导致的结果：</p>
+
+                        <div class="question">
+                            <label>48、严重的违法问题。</label>
+                            <div class="options">
+                                <label class="option-label"><input type="radio" name="q48" value="是"> 是</label>
+                                <label class="option-label"><input type="radio" name="q48" value="否"> 否</label>
+                            </div>
+                        </div>
+
+                        <div class="question">
+                            <label>49、严重的婚姻家庭问题。</label>
+                            <div class="options">
+                                <label class="option-label"><input type="radio" name="q49" value="是"> 是</label>
+                                <label class="option-label"><input type="radio" name="q49" value="否"> 否</label>
+                            </div>
+                        </div>
+
+                        <div class="question">
+                            <label>50、严重的学习工作问题。</label>
+                            <div class="options">
+                                <label class="option-label"><input type="radio" name="q50" value="是"> 是</label>
+                                <label class="option-label"><input type="radio" name="q50" value="否"> 否</label>
+                            </div>
+                        </div>
+
+                        <div class="question">
+                            <label>51、其它症状，具体说明：</label>
+                            <textarea name="q51" rows="3" style="width: 100%; margin-top: 5px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (九) 犯罪助长 -->
+                <div class="section">
+                    <div class="section-title">（九）犯罪助长</div>
+
+                    <div class="question">
+                        <label>52、学习能力差。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q52" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q52" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q52" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q52" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>53、身体有伤残。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q53" value="是"> 是</label>
+                            <label class="option-label"><input type="radio" name="q53" value="否"> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>54、无能力支付需要长期治疗疾病的费用。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q54" value="是"> 是</label>
+                            <label class="option-label"><input type="radio" name="q54" value="否"> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>55、经常向父母要钱或向朋友借钱。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q55" value="是"> 是</label>
+                            <label class="option-label"><input type="radio" name="q55" value="否"> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>56、无稳定居所。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q56" value="是"> 是</label>
+                            <label class="option-label"><input type="radio" name="q56" value="否"> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>57、生活所在地多发同类型犯罪（如涉毒，盗窃等）。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q57" value="是"> 是</label>
+                            <label class="option-label"><input type="radio" name="q57" value="否"> 否</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>58、遇到紧急和困难情况时，不会向他人求助。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q58" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q58" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q58" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q58" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>59、很容易受他人影响和指使。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q59" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q59" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q59" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q59" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (十) 犯罪态度 -->
+                <div class="section">
+                    <div class="section-title">（十）犯罪态度</div>
+
+                    <div class="question">
+                        <label>60、仇恨社会。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q60" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q60" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q60" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q60" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>61、对社会规范感到厌烦（前科3次以上，或者放火罪等要选此选项）。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q61" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q61" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q61" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q61" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>62、对犯罪有借口。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q62" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q62" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q62" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q62" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>63、对被害方无内疚或负罪感。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q63" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q63" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q63" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q63" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>64、对监管改造的态度差。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q64" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q64" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q64" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q64" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>65、对法院/检察/公安机关怨视。</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q65" value="1" required> 1(非常符合)</label>
+                            <label class="option-label"><input type="radio" name="q65" value="2" required> 2(较符合)</label>
+                            <label class="option-label"><input type="radio" name="q65" value="3" required> 3(不符合)</label>
+                            <label class="option-label"><input type="radio" name="q65" value="4" required> 4(非常不符合)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (十一) 行为模式 -->
+                <div class="section">
+                    <div class="section-title">（十一）行为模式</div>
+
+                    <!-- 在监禁机构期间 -->
+                    <div class="subsection-title" style="font-weight: bold; margin-bottom: 10px;">在监禁机构期间：</div>
+
+                    <div class="question">
+                        <label>66、反社会行为表现，选择"是"须符合以下至少一项：</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q66" value="是" required onchange="toggleSubOptions('q66Options')"> 是</label>
+                            <label class="option-label"><input type="radio" name="q66" value="否" required onchange="toggleSubOptions('q66Options')"> 否</label>
+                        </div>
+
+                        <!-- 子选项 -->
+                        <div id="q66Options" style="margin-left: 20px; margin-top: 10px; display: none;">
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q66_a" value="有脱逃史"> a.有脱逃史</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q66_b" value="有前科或劣迹"> b.有前科或劣迹</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q66_c" value="有攻击/暴力记录"> c.有攻击/暴力记录</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q66_d" value="破坏监管秩序行为"> d.破坏监管秩序行为</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q66_e" value="其他"> e.其他（请说明）：
+                                <input type="text" name="q66_e_text" style="width: 200px; margin-left: 5px;"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>67、犯罪的态度。选择"是"须符合以下至少一项：</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q67" value="是" required onchange="toggleSubOptions('q67Options')"> 是</label>
+                            <label class="option-label"><input type="radio" name="q67" value="否" required onchange="toggleSubOptions('q67Options')"> 否</label>
+                        </div>
+
+                        <!-- 子选项 -->
+                        <div id="q67Options" style="margin-left: 20px; margin-top: 10px; display: none;">
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q67_a" value="对被害方没有感到内疚"> a.对被害方没有感到内疚、负罪感</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q67_b" value="对监管改造的态度差"> b.对监管改造的态度差</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q67_c" value="对公检法的态度差"> c.对法院/检察/公安机关的态度差</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 在社会环境期间 -->
+                    <div class="subsection-title" style="font-weight: bold; margin: 15px 0 10px 0;">在社会环境期间：</div>
+
+                    <div class="question">
+                        <label>68、导致犯罪的其它因素，以下须至少符合四项：</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q68" value="是" required onchange="toggleSubOptions('q68Options')"> 是</label>
+                            <label class="option-label"><input type="radio" name="q68" value="否" required onchange="toggleSubOptions('q68Options')"> 否</label>
+                        </div>
+
+                        <!-- 子选项 -->
+                        <div id="q68Options" style="margin-left: 20px; margin-top: 10px; display: none;">
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_a" value="有财务问题"> a.有财务问题</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_b" value="惯偷惯盗"> b.惯偷惯盗</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_c" value="经常打架斗殴"> c.经常打架斗殴</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_d" value="曾因同一罪名受到过处理"> d.曾因同一罪名受到过处理</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_e" value="缺乏支持的家庭关系"> e.缺乏支持的家庭关系</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_f" value="就业从未满过一年"> f.就业从未满过一年</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_g" value="变更住址三次以上"> g.在本地区范围变更三次或以上住址
+                                <input type="number" name="q68_g_count" min="0" style="width: 50px; margin-left: 5px;">次</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_h" value="两次或以上戒毒失败"> h.两次或以上戒毒失败经历</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_i" value="与亲属关系极差"> i.与子女或亲属关系极差或疏远</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_j" value="好逸恶劳"> j.好逸恶劳</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_k" value="经常更换性伴侣"> k.经常更换或同时有多个性伴侣</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q68_l" value="常出入色情场所"> l.休息晚，常出入色情场所或夜不归宿</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (十二) 人格特点 -->
+                <div class="section">
+                    <div class="section-title">（十二）人格特点</div>
+
+                    <div class="question">
+                        <label>69、对反社会性的判断，选择"是"须符合以下至少一项：</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q69" value="是" required onchange="toggleSubOptions('q69Options')"> 是</label>
+                            <label class="option-label"><input type="radio" name="q69" value="否" required onchange="toggleSubOptions('q69Options')"> 否</label>
+                        </div>
+
+                        <!-- 子选项 -->
+                        <div id="q69Options" style="margin-left: 20px; margin-top: 10px; display: none;">
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q69_a" value="行为违背社会规范"> a.行为违背社会规范，经常违法乱纪</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q69_b" value="以自我为中心"> b.以自我为中心，冷漠无情</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q69_c" value="18岁前品行问题"> c.18岁以前就出现品行问题（反复说谎、违反校规、逃学、斗殴、偷窃等）</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>70、对冲动性的判断，选择"是"须符合以下至少一项：</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q70" value="是" required onchange="toggleSubOptions('q70Options')"> 是</label>
+                            <label class="option-label"><input type="radio" name="q70" value="否" required onchange="toggleSubOptions('q70Options')"> 否</label>
+                        </div>
+
+                        <!-- 子选项 -->
+                        <div id="q70Options" style="margin-left: 20px; margin-top: 10px; display: none;">
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q70_a" value="极易激惹"> a.极易激惹，行为难以自控，虽有懊悔但易再犯</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q70_b" value="人际关系紧张"> b.人际关系紧张，几乎没有持久朋友</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q70_c" value="情感爆发有暴力"> c.情感爆发时有暴力行为（自伤或伤害他人）</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q70_d" value="任务难以坚持"> d.工作学习任务难以坚持</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="question">
+                        <label>71、对偏执性的判断，选择"是"须符合以下至少一项：</label>
+                        <div class="options">
+                            <label class="option-label"><input type="radio" name="q71" value="是" required onchange="toggleSubOptions('q71Options')"> 是</label>
+                            <label class="option-label"><input type="radio" name="q71" value="否" required onchange="toggleSubOptions('q71Options')"> 否</label>
+                        </div>
+
+                        <!-- 子选项 -->
+                        <div id="q71Options" style="margin-left: 20px; margin-top: 10px; display: none;">
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q71_a" value="敏感多疑"> a.敏感多疑</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q71_b" value="容易记恨"> b.容易记恨</label>
+                            </div>
+                            <div class="sub-option">
+                                <label class="option-label"><input type="checkbox" name="q71_c" value="固执己见"> c.固执己见</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- (十三) 其它需补充的情况 -->
+                <div class="section">
+                    <div class="section-title">（十三）其它需补充的情况</div>
+                    <div class="question">
+                        <textarea name="additionalInfo" rows="4" style="width: 100%;"></textarea>
+                    </div>
+                </div>
+
+                <div class="action-buttons no-print">
+                    <button type="button" class="btn btn-danger" onclick="resetForm()">重置</button>
+                    <button type="button" class="btn btn-success" onclick="generateReport()">生成报告</button>
+                </div>
+            </form>
+        </div>
+
+        <div id="report-tab" class="tab-content">
+            <div id="reportOutput"></div>
+            <div class="action-buttons no-print" id="reportActions" style="display: none;">
+                <button type="button" class="btn btn-primary" onclick="window.print()">打印报告</button>
+                <button type="button" class="btn btn-success" onclick="exportToWord()">导出Word</button>
+                <button type="button" class="btn btn-danger" onclick="newAssessment()">新建评估</button>
+            </div>
+        </div>
+
+        <!-- 历史数据标签页 -->
+        <div id="history-tab" class="tab-content">
+            <div class="history-container">
+                <h3 class="section-title">历史评估数据</h3>
+                <div class="history-filters">
+                    <input type="text" id="searchInput" placeholder="搜索姓名或编号..." class="search-input">
+                    <select id="riskLevelFilter" class="filter-select">
+                        <option value="">所有风险等级</option>
+                        <option value="较低危险">较低危险</option>
+                        <option value="一般危险">一般危险</option>
+                        <option value="较高危险">较高危险</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="filterHistory()">筛选</button>
+                    <button class="btn btn-secondary" onclick="clearFilters()">清除筛选</button>
+                </div>
+                <div id="historyList" class="history-list">
+                    <!-- 历史数据将在这里动态显示 -->
+                </div>
+            </div>
+        </div>
+    </div>
+        </div>
+
+    <script>
+        // 切换标签页
+        function openTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+
+            document.getElementById(tabId).classList.add('active');
+
+            // 找到对应的标签按钮并激活
+            const targetTabButton = document.querySelector(`.tab[onclick*="${tabId}"]`);
+            if (targetTabButton) {
+                targetTabButton.classList.add('active');
+            }
+
+            if (tabId === 'report-tab') {
+                document.getElementById('reportOutput').style.display = 'block';
+            } else if (tabId === 'history-tab') {
+                loadHistoryData();
+            } else if (tabId === 'home-tab') {
+                updateHomeStats();
+            }
+        }
+
+        // AI分析跳转
+        function openAIAnalysis() {
+            window.open('http://33.66.10.52/workflow/950s4IxSINdbNeJd', '_blank');
+        }
+
+        // 更新主页统计数据
+        function updateHomeStats() {
+            const historyData = JSON.parse(localStorage.getItem('assessmentHistory') || '[]');
+            const totalAssessments = historyData.length;
+            const thisMonth = historyData.filter(item => {
+                const itemDate = new Date(item.assessmentDate);
+                const now = new Date();
+                return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
+            }).length;
+            const highRisk = historyData.filter(item => item.riskLevel === '较高危险').length;
+
+            document.getElementById('totalAssessments').textContent = totalAssessments;
+            document.getElementById('thisMonth').textContent = thisMonth;
+            document.getElementById('highRisk').textContent = highRisk;
+        }
+
+        // 加载历史数据
+        function loadHistoryData() {
+            const historyData = JSON.parse(localStorage.getItem('assessmentHistory') || '[]');
+            const historyList = document.getElementById('historyList');
+
+            if (historyData.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">暂无历史评估数据</p>';
+                return;
+            }
+
+            let html = '';
+            historyData.forEach((item, index) => {
+                const riskClass = item.riskLevel === '较高危险' ? 'high' :
+                                item.riskLevel === '一般危险' ? 'medium' : 'low';
+
+                html += `
+                    <div class="history-item">
+                        <div class="history-header">
+                            <div class="history-title">${item.name || '未知姓名'} - ${item.prisonerNumber || '未知编号'}</div>
+                            <div class="history-risk ${riskClass}">${item.riskLevel}</div>
+                        </div>
+                        <div class="history-details">
+                            <div class="history-detail"><strong>监区：</strong>${item.prisonArea || '-'}</div>
+                            <div class="history-detail"><strong>评估时间：</strong>${item.assessmentDate || '-'}</div>
+                            <div class="history-detail"><strong>刑释时间：</strong>${item.releaseDate || '-'}</div>
+                            <div class="history-detail"><strong>评估员：</strong>${item.assessor || '-'}</div>
+                            <div class="history-detail"><strong>风险分数：</strong>${item.riskScore || '-'}分</div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="btn btn-primary btn-small" onclick="viewHistoryReport(${index})">查看报告</button>
+                            <button class="btn btn-success btn-small" onclick="exportHistoryWord(${index})">导出Word</button>
+                            <button class="btn btn-danger btn-small" onclick="deleteHistoryItem(${index})">删除</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            historyList.innerHTML = html;
+        }
+
+        // 筛选历史数据
+        function filterHistory() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const riskFilter = document.getElementById('riskLevelFilter').value;
+            const historyData = JSON.parse(localStorage.getItem('assessmentHistory') || '[]');
+
+            const filteredData = historyData.filter(item => {
+                const matchesSearch = !searchTerm ||
+                    (item.name && item.name.toLowerCase().includes(searchTerm)) ||
+                    (item.prisonerNumber && item.prisonerNumber.toLowerCase().includes(searchTerm));
+                const matchesRisk = !riskFilter || item.riskLevel === riskFilter;
+
+                return matchesSearch && matchesRisk;
+            });
+
+            displayFilteredHistory(filteredData);
+        }
+
+        // 显示筛选后的历史数据
+        function displayFilteredHistory(filteredData) {
+            const historyList = document.getElementById('historyList');
+
+            if (filteredData.length === 0) {
+                historyList.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">未找到匹配的数据</p>';
+                return;
+            }
+
+            let html = '';
+            filteredData.forEach((item, index) => {
+                const riskClass = item.riskLevel === '较高危险' ? 'high' :
+                                item.riskLevel === '一般危险' ? 'medium' : 'low';
+
+                html += `
+                    <div class="history-item">
+                        <div class="history-header">
+                            <div class="history-title">${item.name || '未知姓名'} - ${item.prisonerNumber || '未知编号'}</div>
+                            <div class="history-risk ${riskClass}">${item.riskLevel}</div>
+                        </div>
+                        <div class="history-details">
+                            <div class="history-detail"><strong>监区：</strong>${item.prisonArea || '-'}</div>
+                            <div class="history-detail"><strong>评估时间：</strong>${item.assessmentDate || '-'}</div>
+                            <div class="history-detail"><strong>刑释时间：</strong>${item.releaseDate || '-'}</div>
+                            <div class="history-detail"><strong>评估员：</strong>${item.assessor || '-'}</div>
+                            <div class="history-detail"><strong>风险分数：</strong>${item.riskScore || '-'}分</div>
+                        </div>
+                        <div class="history-actions">
+                            <button class="btn btn-primary btn-small" onclick="viewHistoryReport(${index})">查看报告</button>
+                            <button class="btn btn-success btn-small" onclick="exportHistoryWord(${index})">导出Word</button>
+                            <button class="btn btn-danger btn-small" onclick="deleteHistoryItem(${index})">删除</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            historyList.innerHTML = html;
+        }
+
+        // 清除筛选条件
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('riskLevelFilter').value = '';
+            loadHistoryData();
+        }
+
+        // 查看历史报告
+        function viewHistoryReport(index) {
+            const historyData = JSON.parse(localStorage.getItem('assessmentHistory') || '[]');
+            const item = historyData[index];
+
+            // 直接显示历史报告，不需要重新生成
+            displayHistoryReport(item);
+            openTab('report-tab');
+        }
+
+        // 导出历史Word
+        function exportHistoryWord(index) {
+            const historyData = JSON.parse(localStorage.getItem('assessmentHistory') || '[]');
+            const item = historyData[index];
+
+            // 直接导出，不需要重新生成报告
+            exportHistoryWordDirect(item);
+        }
+
+        // 直接显示历史报告
+        function displayHistoryReport(item) {
+            // 生成报告HTML（使用历史数据）
+            const reportHTML = generateReportHTMLFromHistory(item);
+
+            // 显示报告
+            const reportOutput = document.getElementById('reportOutput');
+            reportOutput.innerHTML = reportHTML;
+            document.getElementById('reportActions').style.display = 'flex';
+        }
+
+        // 从历史数据生成报告HTML
+        function generateReportHTMLFromHistory(item) {
+            // 计算风险分数
+            let riskScore = calculateRiskScore(item);
+
+            // 确定风险等级
+            let riskLevel = "较低危险";
+            let riskClass = "risk-low";
+
+            if (riskScore > 30) {
+                riskLevel = "较高危险";
+                riskClass = "risk-high";
+            } else if (riskScore > 10) {
+                riskLevel = "一般危险";
+                riskClass = "risk-medium";
+            }
+
+            // 生成报告HTML
+            let reportHTML = generateReportHTML(item, riskScore, riskLevel, riskClass);
+
+            return reportHTML;
+        }
+
+        // 直接导出历史Word（使用历史数据中的犯人信息）
+        function exportHistoryWordDirect(item) {
+            // 直接使用历史数据生成报告HTML
+            const reportHTML = generateReportHTMLFromHistory(item);
+
+            // 创建Word文档内容
+            const content = reportHTML;
+            const blob = new Blob([`
+                <html xmlns:o="urn:schemas-microsoft-com:office:office"
+                      xmlns:w="urn:schemas-microsoft-com:office:word"
+                      xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>罪犯再犯风险评估报告</title>
+                    <style>
+                        body { font-family: Arial; font-size: 12pt; }
+                        h1, h2, h3 { color: #2c3e50; }
+                        table { border-collapse: collapse; width: 100%; }
+                        td, th { border: 1px solid #ddd; padding: 8px; }
+                        tr:nth-child(even) { background-color: #f2f2f2; }
+                        .risk-level-text {
+                            font-weight: bold;
+                            font-size: 24px;
+                        }
+                        .risk-high { color: #e74c3c; }
+                        .risk-medium { color: #f39c12; }
+                        .risk-low { color: #2ecc71; }
+                    </style>
+                </head>
+                <body>${content}</body>
+                </html>
+            `], {
+                type: 'application/msword'
+            });
+
+            // 使用历史数据中的犯人信息作为文件名
+            const prisonerName = item.name || '未知姓名';
+            const prisonerNumber = item.prisonerNumber || '';
+            const assessmentDate = item.assessmentDate || '';
+
+            // 构建文件名：姓名_编号_评估日期_再犯风险评估报告.doc
+            let fileName = prisonerName;
+            if (prisonerNumber) {
+                fileName += `_${prisonerNumber}`;
+            }
+            if (assessmentDate) {
+                fileName += `_${assessmentDate}`;
+            }
+            fileName += '_再犯风险评估报告.doc';
+
+            // 创建下载链接
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            // 显示成功消息
+            showMessage(`历史报告已导出：${fileName}`, 'success');
+        }
+
+        // 删除历史项目
+        function deleteHistoryItem(index) {
+            if (confirm('确定要删除这条评估记录吗？')) {
+                const historyData = JSON.parse(localStorage.getItem('assessmentHistory') || '[]');
+                historyData.splice(index, 1);
+                localStorage.setItem('assessmentHistory', JSON.stringify(historyData));
+                loadHistoryData();
+                updateHomeStats();
+            }
+        }
+
+        // 保存到历史记录
+        function saveToHistory(data, riskScore, riskLevel) {
+            const historyData = JSON.parse(localStorage.getItem('assessmentHistory') || '[]');
+            const newRecord = {
+                ...data,
+                riskScore: riskScore,
+                riskLevel: riskLevel,
+                saveTime: new Date().toISOString()
+            };
+
+            historyData.unshift(newRecord); // 添加到开头
+            localStorage.setItem('assessmentHistory', JSON.stringify(historyData));
+
+            // 更新主页统计
+            updateHomeStats();
+        }
+
+function exportToWord() {
+    // 克隆报告内容以便修改
+    const reportOutput = document.getElementById('reportOutput');
+    const reportClone = reportOutput.cloneNode(true);
+
+    // 获取当前页面中实际选择的值（不是克隆的内容）
+    const currentRiskLevelSelect = document.querySelector('#reportOutput select.risk-level-select');
+    const currentRiskNote = document.querySelector('#reportOutput textarea[name="riskLevelNote"]');
+
+    // 转换风险等级下拉框为文本
+    const riskLevelSelects = reportClone.querySelectorAll('select.risk-level-select');
+    riskLevelSelects.forEach(select => {
+        // 使用当前页面中的选择值，而不是克隆内容中的值
+        const selectedValue = currentRiskLevelSelect ? currentRiskLevelSelect.value : select.value;
+        const selectedText = getRiskLevelText(selectedValue);
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = selectedText;
+        textSpan.className = 'risk-level-text ' + getRiskClass(selectedValue);
+        select.parentNode.replaceChild(textSpan, select);
+    });
+
+    // 转换风险等级调整说明文本区域为纯文本
+    const riskNoteTextareas = reportClone.querySelectorAll('textarea[name="riskLevelNote"]');
+    riskNoteTextareas.forEach(textarea => {
+        // 使用当前页面中的文本内容，而不是克隆内容中的值
+        const noteText = currentRiskNote ? currentRiskNote.value : textarea.value;
+        const noteDiv = document.createElement('div');
+        noteDiv.textContent = noteText || '无特殊调整说明';
+        textarea.parentNode.replaceChild(noteDiv, textarea);
+    });
+
+    // 使用修改后的内容生成Word
+    const content = reportClone.innerHTML;
+    const blob = new Blob([`
+        <html xmlns:o="urn:schemas-microsoft-com:office:office"
+              xmlns:w="urn:schemas-microsoft-com:office:word"
+              xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta charset="UTF-8">
+            <title>罪犯再犯风险评估报告</title>
+            <style>
+                body { font-family: Arial; font-size: 12pt; }
+                h1, h2, h3 { color: #2c3e50; }
+                table { border-collapse: collapse; width: 100%; }
+                td, th { border: 1px solid #ddd; padding: 8px; }
+                tr:nth-child(even) { background-color: #f2f2f2; }
+                .risk-level-text {
+                    font-weight: bold;
+                    font-size: 24px;
+                }
+                .risk-high { color: #e74c3c; }
+                .risk-medium { color: #f39c12; }
+                .risk-low { color: #2ecc71; }
+            </style>
+        </head>
+        <body>${content}</body>
+        </html>
+    `], {
+        type: 'application/msword'
+    });
+
+    // 获取犯人姓名作为文件名
+    const prisonerName = document.getElementById('name').value || '未知姓名';
+    const prisonerNumber = document.getElementById('prisonerNumber').value || '';
+    const assessmentDate = document.getElementById('assessmentDate').value || '';
+
+    // 构建文件名：姓名_编号_评估日期_再犯风险评估报告.doc
+    let fileName = prisonerName;
+    if (prisonerNumber) {
+        fileName += `_${prisonerNumber}`;
+    }
+    if (assessmentDate) {
+        fileName += `_${assessmentDate}`;
+    }
+    fileName += '_再犯风险评估报告.doc';
+
+    // 创建下载链接
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+            // 显示成功消息
+        showMessage(`报告已导出：${fileName}`, 'success');
+    }
+
+    // 显示消息提示
+    function showMessage(message, type = 'info') {
+        // 创建消息元素
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message message-${type}`;
+        messageDiv.textContent = message;
+
+        // 添加到页面
+        document.body.appendChild(messageDiv);
+
+        // 3秒后自动消失
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.parentNode.removeChild(messageDiv);
+            }
+        }, 3000);
+    }
+
+// 辅助函数：根据风险等级值获取显示文本
+function getRiskLevelText(value) {
+    switch(value) {
+        case '较低危险': return '较低危险';
+        case '一般危险': return '一般危险';
+        case '较高危险': return '较高危险';
+        default: return '未评估';
+    }
+}
+
+// 辅助函数：根据风险等级值获取CSS类名
+function getRiskClass(value) {
+    switch(value) {
+        case '较低危险': return 'risk-low';
+        case '一般危险': return 'risk-medium';
+        case '较高危险': return 'risk-high';
+        default: return '';
+    }
+}
+
+        // 生成评估报告
+        function generateReport() {
+            // 验证表单
+            const requiredInputs = document.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredInputs.forEach(input => {
+                if ((input.type === 'radio' && !document.querySelector(`input[name="${input.name}"]:checked`)) ||
+                    (input.type !== 'radio' && !input.value)) {
+                    isValid = false;
+                    input.style.borderColor = 'red';
+                } else {
+                    if (input.type !== 'radio') {
+                        input.style.borderColor = '';
+                    }
+                }
+            });
+
+            if (!isValid) {
+                alert('请填写所有必填项！');
+                return;
+            }
+
+            // 收集数据
+            const formData = new FormData(document.getElementById('riskAssessmentForm'));
+            const data = {};
+
+            for (const [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+                // 计算风险分数
+                let riskScore = calculateRiskScore(data);
+
+                // 确定风险等级
+              let riskLevel = "较低危险";
+              let riskClass = "risk-low";
+
+                if (riskScore > 30) {
+                    riskLevel = "较高危险";
+                    riskClass = "risk-high";
+                } else if (riskScore > 10) {
+                    riskLevel = "一般危险";
+                    riskClass = "risk-medium";
+                }
+
+                // 生成报告HTML
+                let reportHTML = generateReportHTML(data, riskScore, riskLevel, riskClass);
+
+                // 显示报告
+                const reportOutput = document.getElementById('reportOutput');
+                reportOutput.innerHTML = reportHTML;
+                document.getElementById('reportActions').style.display = 'flex';
+
+                // 保存到历史记录
+                saveToHistory(data, riskScore, riskLevel);
+
+                // 显示保存成功消息
+                showMessage('✅ 评估报告生成成功！已自动保存到历史记录', 'success');
+
+                // 自动切换到报告标签页
+                setTimeout(() => {
+                    openTab('report-tab');
+                    showMessage('📊 已跳转到查看评估报告界面', 'info');
+                }, 1500);
+            }
+
+        // 计算风险分数
+        function calculateRiskScore(data) {
+            let score = 0;
+
+            // (一) 犯罪经历
+            if (data.q1 === '是') score += 1;
+            if (data.q2 === '是') score += 1;
+            if (data.q3 === '是') score += 1;
+            if (data.q4 === '是') score += 1;
+            if (data.q5 === '是') score += 1;
+            if (data.q6 === '是') score += 1;
+            if (data.q7 === '是') score += 1;
+            if (data.q8 === '是') score += 1;
+            if (data.q9 === '是') score += 1;
+            if (data.q10 === '是') score += 1;
+            if (data.q11 === '是') score += 1;
+
+            // (二) 早期社会化问题
+            if (data.q12 === '是') score += 1;
+            if (data.q13 === '是') score += 1;
+            if (data.q14 === '是') score += 1;
+            if (data.q15 === '是') score += 1;
+
+            // (三) 家庭婚姻
+            if (parseInt(data.q16) <= 2) score += 1;
+            if (parseInt(data.q17) <= 2) score += 1;
+            if (data.q18 !== '无子女' && parseInt(data.q18) <= 2) score += 1;
+            if (data.q19 === '是') score += 1;
+            if (data.q20 === '是') score += 1;
+
+            // (四) 教育就业
+            if (data.q21 === '是') score += 1;
+            if (data.q22 === '是') score += 1;
+            if (data.q23 === '是') score += 1;
+            if (data.q24 === '是') score += 1;
+            if (data.q25 === '是') score += 1;
+            if (data.q26 === '是') score += 1;
+            if (data.q27 === '是') score += 1;
+            if (data.q28 === '是') score += 1;
+            if (parseInt(data.q29) <= 2) score += 1;
+            if (parseInt(data.q30) <= 2) score += 1;
+            if (parseInt(data.q31) <= 2) score += 1;
+
+            // (五) 同伴交往
+            if (parseInt(data.q32) <= 2) score += 1;
+            if (parseInt(data.q33) <= 2) score += 1;
+            if (parseInt(data.q34) <= 2) score += 1;
+
+            // (六) 兴趣爱好
+            if (parseInt(data.q35) <= 2) score += 1;
+            if (parseInt(data.q36) <= 2) score += 1;
+            if (parseInt(data.q37) <= 2) score += 1;
+
+            // (七) 再社会化预期
+            if (parseInt(data.q38) <= 2) score += 1;
+            if (parseInt(data.q39) <= 2) score += 1;
+            if (parseInt(data.q40) <= 2) score += 1;
+            if (parseInt(data.q41) <= 2) score += 1;
+            if (parseInt(data.q42) <= 2) score += 1;
+            if (parseInt(data.q43) <= 2) score += 1;
+            if (parseInt(data.q44) <= 2) score += 1;
+
+            // (八) 成瘾问题
+            if (data.q45 === '是') score += 1;
+            if (data.q46 === '是') score += 1;
+            if (data.q47 === '是') score += 1;
+            if (data.q48 === '是') score += 1;
+            if (data.q49 === '是') score += 1;
+            if (data.q50 === '是') score += 1;
+            // 注意：q51是文本输入，不计算分数
+
+            // (九) 犯罪助长
+            if (parseInt(data.q52) <= 2) score += 1;
+            if (data.q53 === '是') score += 1;
+            if (data.q54 === '是') score += 1;
+            if (data.q55 === '是') score += 1;
+            if (data.q56 === '是') score += 1;
+            if (data.q57 === '是') score += 1;
+            if (parseInt(data.q58) <= 2) score += 1;
+            if (parseInt(data.q59) <= 2) score += 1;
+
+            // (十) 犯罪态度
+            if (parseInt(data.q60) <= 2) score += 1;
+            if (parseInt(data.q61) <= 2) score += 1;
+            if (parseInt(data.q62) <= 2) score += 1;
+            if (parseInt(data.q63) <= 2) score += 1;
+            if (parseInt(data.q64) <= 2) score += 1;
+            if (parseInt(data.q65) <= 2) score += 1;
+
+            // (十一) 行为模式
+            if (data.q66 === '是') score += 1;
+            if (data.q67 === '是') score += 1;
+            if (data.q68 === '是') score += 1;
+
+            // (十二) 人格特点
+            if (data.q69 === '是') score += 1;
+            if (data.q70 === '是') score += 1;
+            if (data.q71 === '是') score += 1;
+
+            return score;
+        }
+
+        // 计算维度分数
+        function calculateDimensionScore(data, questions) {
+            let score = 0;
+            let maxScore = questions.length;
+
+            questions.forEach(q => {
+                if (data[q] === '是' || data[q] === '1' || data[q] === '2') {
+                    score += 1;
+                }
+            });
+
+            return { score, maxScore };
+        }
+
+        // 获取维度风险等级
+        function getDimensionRiskLevel(score, maxScore) {
+            const percentage = (score / maxScore) * 100;
+            if (percentage >= 75) return '极高';
+            if (percentage >= 50) return '高度';
+            if (percentage >= 25) return '中度';
+            return '低度';
+        }
+
+        // 生成报告HTML
+        function generateReportHTML(data, riskScore, riskLevel, riskClass) {
+            let reportHTML = `
+    <div class="report-container">
+        <h2 class="report-title">罪犯再犯风险评估报告</h2>
+        <div class="report-header">
+            <div class="report-meta">
+                <div><span class="meta-label">编号：</span>${data.prisonerNumber || '-'}</div>
+                <div><span class="meta-label">姓名：</span>${data.name || '-'}</div>
+
+                <div><span class="meta-label">评估员：</span>${data.assessor || '-'}</div>
+                <div><span class="meta-label">生成报告：</span>${data.assessmentDate || '-'}</div>
+
+            </div>
+        </div>
+
+
+
+
+        <div class="risk-summary">
+            <div class="risk-score">
+                <div class="score-label">量表总分</div>
+                <div class="score-value">${riskScore}.00分</div>
+            </div>
+            <div class="risk-level ${riskClass}">
+                <div class="level-label">危险等级</div>
+                <div class="level-value">
+                    <select name="finalRiskLevel" class="risk-level-select">
+                        <option value="较低危险" ${riskLevel === '较低危险' ? 'selected' : ''}>较低危险</option>
+                        <option value="一般危险" ${riskLevel === '一般危险' ? 'selected' : ''}>一般危险</option>
+                        <option value="较高危险" ${riskLevel === '较高危险' ? 'selected' : ''}>较高危险</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 风险因素构造图 -->
+        <div class="report-section">
+            <h3 class="section-title">二、风险因素构造图</h3>
+            <table class="report-table">
+                <tr>
+                    <td width="8%">风险等级</td>
+                    <td width="7.7%">犯罪经历</td>
+                    <td width="7.7%">早期社会化问题</td>
+                    <td width="7.7%">家庭婚姻</td>
+                    <td width="7.7%">教育就业</td>
+                    <td width="7.7%">同伴交往</td>
+                    <td width="7.7%">兴趣爱好</td>
+                    <td width="7.7%">再社会化预期</td>
+                    <td width="7.7%">成瘾问题</td>
+                    <td width="7.7%">犯罪助长</td>
+                    <td width="7.7%">犯罪态度</td>
+                    <td width="7.7%">行为模式</td>
+                    <td width="7.7%">人格特点</td>
+                </tr>
+                <tr>
+                    <td>极高</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11']).score, 11) === '极高' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19', 'q20']).score, 9) === '极高' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q16', 'q17', 'q18', 'q19', 'q20']).score, 5) === '极高' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q21', 'q22', 'q23', 'q24', 'q25', 'q26', 'q27', 'q28', 'q29', 'q30', 'q31']).score, 11) === '极高' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q32', 'q33', 'q34']).score, 3) === '极高' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q35', 'q36', 'q37']).score, 3) === '极高' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q38', 'q39', 'q40', 'q41', 'q42', 'q43', 'q44']).score, 7) === '极高' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q45', 'q46', 'q47', 'q48', 'q49', 'q50']).score, 6) === '极高' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q52', 'q53', 'q54', 'q55', 'q56', 'q57', 'q58', 'q59']).score, 8) === '极高' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q60', 'q61', 'q62', 'q63', 'q64', 'q65']).score, 6) === '极高' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q66', 'q67', 'q68']).score, 3) === '极高' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q69', 'q70', 'q71']).score, 3) === '极高' ? '●' : ''}</td>
+                </tr>
+                <tr>
+                    <td>高度</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11']).score, 11) === '高度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19', 'q20']).score, 9) === '高度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q16', 'q17', 'q18', 'q19', 'q20']).score, 5) === '高度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q21', 'q22', 'q23', 'q24', 'q25', 'q26', 'q27', 'q28', 'q29', 'q30', 'q31']).score, 11) === '高度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q32', 'q33', 'q34']).score, 3) === '高度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q35', 'q36', 'q37']).score, 3) === '高度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q38', 'q39', 'q40', 'q41', 'q42', 'q43', 'q44']).score, 7) === '高度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q45', 'q46', 'q47', 'q48', 'q49', 'q50']).score, 6) === '高度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q52', 'q53', 'q54', 'q55', 'q56', 'q57', 'q58', 'q59']).score, 8) === '高度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q60', 'q61', 'q62', 'q63', 'q64', 'q65']).score, 6) === '高度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q66', 'q67', 'q68']).score, 3) === '高度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q69', 'q70', 'q71']).score, 3) === '高度' ? '●' : ''}</td>
+                </tr>
+                <tr>
+                    <td>中度</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11']).score, 11) === '中度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19', 'q20']).score, 9) === '中度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q16', 'q17', 'q18', 'q19', 'q20']).score, 5) === '中度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q21', 'q22', 'q23', 'q24', 'q25', 'q26', 'q27', 'q28', 'q29', 'q30', 'q31']).score, 11) === '中度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q32', 'q33', 'q34']).score, 3) === '中度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q35', 'q36', 'q37']).score, 3) === '中度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q38', 'q39', 'q40', 'q41', 'q42', 'q43', 'q44']).score, 7) === '中度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q45', 'q46', 'q47', 'q48', 'q49', 'q50']).score, 6) === '中度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q52', 'q53', 'q54', 'q55', 'q56', 'q57', 'q58', 'q59']).score, 8) === '中度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q60', 'q61', 'q62', 'q63', 'q64', 'q65']).score, 6) === '中度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q66', 'q67', 'q68']).score, 3) === '中度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q69', 'q70', 'q71']).score, 3) === '中度' ? '●' : ''}</td>
+                </tr>
+                <tr>
+                    <td>低度</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11']).score, 11) === '低度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q12', 'q13', 'q14', 'q15', 'q16', 'q17', 'q18', 'q19', 'q20']).score, 9) === '低度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q16', 'q17', 'q18', 'q19', 'q20']).score, 5) === '低度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q21', 'q22', 'q23', 'q24', 'q25', 'q26', 'q27', 'q28', 'q29', 'q30', 'q31']).score, 11) === '低度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q32', 'q33', 'q34']).score, 3) === '低度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q35', 'q36', 'q37']).score, 3) === '低度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q38', 'q39', 'q40', 'q41', 'q42', 'q43', 'q44']).score, 7) === '低度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q45', 'q46', 'q47', 'q48', 'q49', 'q50']).score, 6) === '低度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q52', 'q53', 'q54', 'q55', 'q56', 'q57', 'q58', 'q59']).score, 8) === '低度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q60', 'q61', 'q62', 'q63', 'q64', 'q65']).score, 6) === '低度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q66', 'q67', 'q68']).score, 3) === '低度' ? '●' : ''}</td>
+                    <td>${getDimensionRiskLevel(calculateDimensionScore(data, ['q69', 'q70', 'q71']).score, 3) === '低度' ? '●' : ''}</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 评估结论 -->
+        <div class="report-section">
+            <h3 class="section-title">三、评估结论</h3>
+            <table class="report-table">
+                <tr>
+                    <td width="30%">量表总分</td>
+                    <td>${riskScore}.00分</td>
+                </tr>
+                <tr>
+                    <td>分数范围</td>
+                    <td>0-71分</td>
+                </tr>
+                <tr>
+                    <td>危险等级</td>
+                    <td>${riskLevel}</td>
+                </tr>
+            </table>
+            <div class="additional-info" style="margin-top: 15px;">
+                说明:本评估是对罪犯目前状态下重犯可能性的预测,导致罪犯重新犯罪的因素复杂且多变,罪犯回归社会后,就业状况、经济收入、社区帮教、人际交往、家庭关系等情况变动,会导致其重新犯罪风险的变化。本评估报告仅供参考。
+            </div>
+        </div>
+
+        <!-- 基本信息 -->
+        <div class="report-section">
+            <h3 class="section-title">基本信息</h3>
+            <table class="report-table">
+                <tr>
+                    <td width="30%">监区</td>
+                    <td>${data.prisonArea || '-'}</td>
+                </tr>
+                <tr>
+                    <td>姓名</td>
+                    <td>${data.name || '-'}</td>
+                </tr>
+                <tr>
+                    <td>编号</td>
+                    <td>${data.prisonerNumber || '-'}</td>
+                </tr>
+                <tr>
+                    <td>刑释时间</td>
+                    <td>${data.releaseDate || '-'}</td>
+                </tr>
+            </table>
+        </div>
+            `;
+
+            // (一) 犯罪经历
+            reportHTML += `
+                <div class="report-section">
+                    <h3 class="section-title">一、民警评估量表结果提示</h3>
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（一）犯罪经历</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>1. 此前有前科劣迹</td>
+                            <td>${data.q1 || '未选择'}</td>
+                            <td>${data.q1 === '是' ? `（未成年${data.juvenileRecordCount || 0}次，成年前科${data.adultRecordCount || 0}次）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>2. 曾因定罪而被处监禁</td>
+                            <td>${data.q2 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>3. 曾有异地改造经历</td>
+                            <td>${data.q3 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>4. 曾在监禁机构内有较严重违纪受到过如警告、严管、禁闭等处罚</td>
+                            <td>${data.q4 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>5. 曾在监禁场所内再次犯罪</td>
+                            <td>${data.q5 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>6. 曾在缓刑或假释期间再次犯罪</td>
+                            <td>${data.q6 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>7. 此次犯罪类型为盗窃</td>
+                            <td>${data.q7 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>8. 此次犯罪类型为涉毒类</td>
+                            <td>${data.q8 || '未选择'}</td>
+                            <td>${data.q8 === '是' && data.drugType ? `（毒品种类：${data.drugType}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>9. 此次犯罪刑期3年及以下</td>
+                            <td>${data.q9 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>10. 此次犯罪是团伙犯罪主犯</td>
+                            <td>${data.q10 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>11. 初次犯罪时年龄未满18周岁</td>
+                            <td>${data.q11 || '未选择'}</td>
+                            <td>${data.q11 === '是' ? `（初次犯罪年龄：${data.firstCrimeAge || '未知'}周岁）` : ''}</td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (二) 早期社会化问题
+            reportHTML += `
+                <div class="report-section">
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（二）早期社会化问题</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>12. 成年前有过性生活</td>
+                            <td>${data.q12 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>13. 成年前不与父母共同生活</td>
+                            <td>${data.q13 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>14. 成年前父母离婚</td>
+                            <td>${data.q14 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>15. 在单亲家庭长大</td>
+                            <td>${data.q15 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (三) 家庭婚姻
+            reportHTML += `
+                <div class="report-section">
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（三）家庭婚姻</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>16. 婚姻或恋爱关系状况差</td>
+                            <td>${data.q16 || '未选择'}</td>
+                            <td>${data.q16 && data.q16 !== '无子女' ? `（${data.q16 === '1' ? '非常符合' : data.q16 === '2' ? '较符合' : data.q16 === '3' ? '不符合' : data.q16 === '4' ? '非常不符合' : data.q16}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>17. 与父母关系状况差</td>
+                            <td>${data.q17 || '未选择'}</td>
+                            <td>${data.q17 ? `（${data.q17 === '1' ? '非常符合' : data.q17 === '2' ? '较符合' : data.q17 === '3' ? '不符合' : data.q17 === '4' ? '非常不符合' : data.q17}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>18. 与子女关系状况差</td>
+                            <td>${data.q18 || '未选择'}</td>
+                            <td>${data.q18 === '无子女' ? '无子女' : data.q18 ? `（${data.q18 === '1' ? '非常符合' : data.q18 === '2' ? '较符合' : data.q18 === '3' ? '不符合' : data.q18 === '4' ? '非常不符合' : data.q18}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>19. 直系亲属中曾有犯罪</td>
+                            <td>${data.q19 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>20. 半年前与其它亲属失联或关系十分疏远</td>
+                            <td>${data.q20 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (四) 教育就业
+            reportHTML += `
+                <div class="report-section">
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（四）教育就业</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>21. 经常失业</td>
+                            <td>${data.q21 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>22. 就业从未满一年</td>
+                            <td>${data.q22 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>23. 工作环境具有一定犯罪风险</td>
+                            <td>${data.q23 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>24. 有一些犯罪相关特殊技能</td>
+                            <td>${data.q24 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>25. 文化程度小学或以下水平</td>
+                            <td>${data.q25 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>26. 文化程度初中或以下水平</td>
+                            <td>${data.q26 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>27. 在校期间曾因学业不良，留级、主动辍学或长期逃课</td>
+                            <td>${data.q27 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>28. 在校期间曾收到过处分、停学或除名</td>
+                            <td>${data.q28 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>29. 对教育等相关活动没有兴趣</td>
+                            <td>${data.q29 || '未选择'}</td>
+                            <td>${data.q29 ? `（${data.q29 === '1' ? '非常符合' : data.q29 === '2' ? '较符合' : data.q29 === '3' ? '不符合' : data.q29 === '4' ? '非常不符合' : data.q29}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>30. 与同学或同事存在持久矛盾或关系疏离</td>
+                            <td>${data.q30 || '未选择'}</td>
+                            <td>${data.q30 ? `（${data.q30 === '1' ? '非常符合' : data.q30 === '2' ? '较符合' : data.q30 === '3' ? '不符合' : data.q30 === '4' ? '非常不符合' : data.q30}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>31. 与上级存在长期矛盾或关系紧张</td>
+                            <td>${data.q31 || '未选择'}</td>
+                            <td>${data.q31 ? `（${data.q31 === '1' ? '非常符合' : data.q31 === '2' ? '较符合' : data.q31 === '3' ? '不符合' : data.q31 === '4' ? '非常不符合' : data.q31}）` : ''}</td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (五) 同伴交往
+            reportHTML += `
+                <div class="report-section">
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（五）同伴交往</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>32. 几乎没有正常交往的朋友</td>
+                            <td>${data.q32 || '未选择'}</td>
+                            <td>${data.q32 ? `（${data.q32 === '1' ? '非常符合' : data.q32 === '2' ? '较符合' : data.q32 === '3' ? '不符合' : data.q32 === '4' ? '非常不符合' : data.q32}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>33. 有罪犯朋友</td>
+                            <td>${data.q33 || '未选择'}</td>
+                            <td>${data.q33 ? `（${data.q33 === '1' ? '非常符合' : data.q33 === '2' ? '较符合' : data.q33 === '3' ? '不符合' : data.q33 === '4' ? '非常不符合' : data.q33}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>34. 重视与朋友的关系</td>
+                            <td>${data.q34 || '未选择'}</td>
+                            <td>${data.q34 ? `（${data.q34 === '1' ? '非常符合' : data.q34 === '2' ? '较符合' : data.q34 === '3' ? '不符合' : data.q34 === '4' ? '非常不符合' : data.q34}）` : ''}</td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (六) 兴趣爱好
+            reportHTML += `
+                <div class="report-section">
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（六）兴趣爱好</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>35. 几乎不参加积极的有益活动</td>
+                            <td>${data.q35 || '未选择'}</td>
+                            <td>${data.q35 ? `（${data.q35 === '1' ? '非常符合' : data.q35 === '2' ? '较符合' : data.q35 === '3' ? '不符合' : data.q35 === '4' ? '非常不符合' : data.q35}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>36. 业余时间利用不当</td>
+                            <td>${data.q36 || '未选择'}</td>
+                            <td>${data.q36 ? `（${data.q36 === '1' ? '非常符合' : data.q36 === '2' ? '较符合' : data.q36 === '3' ? '不符合' : data.q36 === '4' ? '非常不符合' : data.q36}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>37. 闲暇时间很少与家人一起</td>
+                            <td>${data.q37 || '未选择'}</td>
+                            <td>${data.q37 ? `（${data.q37 === '1' ? '非常符合' : data.q37 === '2' ? '较符合' : data.q37 === '3' ? '不符合' : data.q37 === '4' ? '非常不符合' : data.q37}）` : ''}</td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (七) 再社会化预期
+            reportHTML += `
+                <div class="report-section">
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（七）再社会化预期</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>38. 技能训练或学习教育与就业的关联程度低</td>
+                            <td>${data.q38 || '未选择'}</td>
+                            <td>${data.q38 ? `（${data.q38 === '1' ? '非常符合' : data.q38 === '2' ? '较符合' : data.q38 === '3' ? '不符合' : data.q38 === '4' ? '非常不符合' : data.q38}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>39. 没有就业计划</td>
+                            <td>${data.q39 || '未选择'}</td>
+                            <td>${data.q39 ? `（${data.q39 === '1' ? '非常符合' : data.q39 === '2' ? '较符合' : data.q39 === '3' ? '不符合' : data.q39 === '4' ? '非常不符合' : data.q39}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>40. 没有就业技能</td>
+                            <td>${data.q40 || '未选择'}</td>
+                            <td>${data.q40 ? `（${data.q40 === '1' ? '非常符合' : data.q40 === '2' ? '较符合' : data.q40 === '3' ? '不符合' : data.q40 === '4' ? '非常不符合' : data.q40}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>41. 不愿就业</td>
+                            <td>${data.q41 || '未选择'}</td>
+                            <td>${data.q41 ? `（${data.q41 === '1' ? '非常符合' : data.q41 === '2' ? '较符合' : data.q41 === '3' ? '不符合' : data.q41 === '4' ? '非常不符合' : data.q41}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>42. 难以落实安置帮教工作</td>
+                            <td>${data.q42 || '未选择'}</td>
+                            <td>${data.q42 ? `（${data.q42 === '1' ? '非常符合' : data.q42 === '2' ? '较符合' : data.q42 === '3' ? '不符合' : data.q42 === '4' ? '非常不符合' : data.q42}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>43. 社会保障状况差</td>
+                            <td>${data.q43 || '未选择'}</td>
+                            <td>${data.q43 ? `（${data.q43 === '1' ? '非常符合' : data.q43 === '2' ? '较符合' : data.q43 === '3' ? '不符合' : data.q43 === '4' ? '非常不符合' : data.q43}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>44. 生活自理能力差</td>
+                            <td>${data.q44 || '未选择'}</td>
+                            <td>${data.q44 ? `（${data.q44 === '1' ? '非常符合' : data.q44 === '2' ? '较符合' : data.q44 === '3' ? '不符合' : data.q44 === '4' ? '非常不符合' : data.q44}）` : ''}</td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (八) 成瘾问题
+            reportHTML += `
+                <div class="report-section">
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（八）成瘾问题</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>45. 曾有酗酒问题</td>
+                            <td>${data.q45 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>46. 曾有吸毒问题</td>
+                            <td>${data.q46 || '未选择'}</td>
+                            <td>${data.q46 === '是' && data.drugType ? `（毒品种类：${data.drugType}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>47. 曾有赌博问题</td>
+                            <td>${data.q47 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>48. 严重的违法问题</td>
+                            <td>${data.q48 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>49. 严重的婚姻家庭问题</td>
+                            <td>${data.q49 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>50. 严重的学习工作问题</td>
+                            <td>${data.q50 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>51. 其它症状，具体说明</td>
+                            <td>${data.q51 || '无'}</td>
+                            <td></td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (九) 犯罪助长
+            reportHTML += `
+                <div class="report-section">
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（九）犯罪助长</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>52. 学习能力差</td>
+                            <td>${data.q52 || '未选择'}</td>
+                            <td>${data.q52 ? `（${data.q52 === '1' ? '非常符合' : data.q52 === '2' ? '较符合' : data.q52 === '3' ? '不符合' : data.q52 === '4' ? '非常不符合' : data.q52}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>53. 身体有伤残</td>
+                            <td>${data.q53 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>54. 无能力支付需要长期治疗疾病的费用</td>
+                            <td>${data.q54 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>55. 经常向父母要钱或向朋友借钱</td>
+                            <td>${data.q55 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>56. 无稳定居所</td>
+                            <td>${data.q56 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>57. 生活所在地多发同类型犯罪</td>
+                            <td>${data.q57 || '未选择'}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>58. 遇到紧急和困难情况时，不会向他人求助</td>
+                            <td>${data.q58 || '未选择'}</td>
+                            <td>${data.q58 ? `（${data.q58 === '1' ? '非常符合' : data.q58 === '2' ? '较符合' : data.q58 === '3' ? '不符合' : data.q58 === '4' ? '非常不符合' : data.q58}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>59. 很容易受他人影响和指使</td>
+                            <td>${data.q59 || '未选择'}</td>
+                            <td>${data.q59 ? `（${data.q59 === '1' ? '非常符合' : data.q59 === '2' ? '较符合' : data.q59 === '3' ? '不符合' : data.q59 === '4' ? '非常不符合' : data.q59}）` : ''}</td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (十) 犯罪态度
+            reportHTML += `
+                <div class="report-section">
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（十）犯罪态度</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>60. 仇恨社会</td>
+                            <td>${data.q60 || '未选择'}</td>
+                            <td>${data.q60 ? `（${data.q60 === '1' ? '非常符合' : data.q60 === '2' ? '较符合' : data.q60 === '3' ? '不符合' : data.q60 === '4' ? '非常不符合' : data.q60}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>61. 对社会规范感到厌烦</td>
+                            <td>${data.q61 || '未选择'}</td>
+                            <td>${data.q61 ? `（${data.q61 === '1' ? '非常符合' : data.q61 === '2' ? '较符合' : data.q61 === '3' ? '不符合' : data.q61 === '4' ? '非常不符合' : data.q61}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>62. 对犯罪有借口</td>
+                            <td>${data.q62 || '未选择'}</td>
+                            <td>${data.q62 ? `（${data.q62 === '1' ? '非常符合' : data.q62 === '2' ? '较符合' : data.q62 === '3' ? '不符合' : data.q62 === '4' ? '非常不符合' : data.q62}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>63. 对被害方无内疚或负罪感</td>
+                            <td>${data.q63 || '未选择'}</td>
+                            <td>${data.q63 ? `（${data.q63 === '1' ? '非常符合' : data.q63 === '2' ? '较符合' : data.q63 === '3' ? '不符合' : data.q63 === '4' ? '非常不符合' : data.q63}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>64. 对监管改造的态度差</td>
+                            <td>${data.q64 || '未选择'}</td>
+                            <td>${data.q64 ? `（${data.q64 === '1' ? '非常符合' : data.q64 === '2' ? '较符合' : data.q64 === '3' ? '不符合' : data.q64 === '4' ? '非常不符合' : data.q64}）` : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>65. 对法院/检察/公安机关怨视</td>
+                            <td>${data.q65 || '未选择'}</td>
+                            <td>${data.q65 ? `（${data.q65 === '1' ? '非常符合' : data.q65 === '2' ? '较符合' : data.q65 === '3' ? '不符合' : data.q65 === '4' ? '非常不符合' : data.q65}）` : ''}</td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (十一) 行为模式
+            reportHTML += `
+                <div class="report-section">
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（十一）行为模式</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>66. 反社会行为表现</td>
+                            <td>${data.q66 || '未选择'}</td>
+                            <td>${data.q66 === '是' ? getSubOptionsText(data, 'q66') : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>67. 犯罪的态度</td>
+                            <td>${data.q67 || '未选择'}</td>
+                            <td>${data.q67 === '是' ? getSubOptionsText(data, 'q67') : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>68. 导致犯罪的其它因素</td>
+                            <td>${data.q68 || '未选择'}</td>
+                            <td>${data.q68 === '是' ? getSubOptionsText(data, 'q68') : ''}</td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (十二) 人格特点
+            reportHTML += `
+                <div class="report-section">
+                    <h4 style="margin: 10px 0; color: #2c3e50;">（十二）人格特点</h4>
+                    <table class="report-table">
+                        <tr>
+                            <td width="60%">评估项目</td>
+                            <td>答案</td>
+                            <td>备注</td>
+                        </tr>
+            `;
+
+            // 显示所有问题的答案
+            reportHTML += `
+                        <tr>
+                            <td>69. 对反社会性的判断</td>
+                            <td>${data.q69 || '未选择'}</td>
+                            <td>${data.q69 === '是' ? getSubOptionsText(data, 'q69') : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>70. 对冲动性的判断</td>
+                            <td>${data.q70 || '未选择'}</td>
+                            <td>${data.q70 === '是' ? getSubOptionsText(data, 'q70') : ''}</td>
+                        </tr>
+                        <tr>
+                            <td>71. 对偏执性的判断</td>
+                            <td>${data.q71 || '未选择'}</td>
+                            <td>${data.q71 === '是' ? getSubOptionsText(data, 'q71') : ''}</td>
+                        </tr>
+            `;
+
+            reportHTML += `
+                    </table>
+                </div>
+            `;
+
+            // (十三) 其它需补充的情况
+            reportHTML += `
+                <div class="report-section">
+                    <h3 class="section-title">（十三）其它需补充的情况</h3>
+                    <div class="additional-info">
+                        ${data.additionalInfo || '无'}
+                    </div>
+                </div>
+            `;
+
+            // 备注说明
+            reportHTML += `
+                <div class="report-section">
+                    <h3 class="section-title">备注</h3>
+                    <div class="additional-info">
+                        提示信息中的(1)表示"非常符合"(2)表示"比较符合"(3)表示"不符合"(4)表示"非常不符合"
+                    </div>
+                </div>
+            `;
+
+            // 建议措施
+            reportHTML += `
+                <div class="report-section">
+                    <h3 class="section-title">四、建议措施</h3>
+                    <div class="recommendations">
+                        <p>${riskLevel === '较高危险' ? '该犯重新违法犯罪可能性较高,建议相关部门结合评估报告,对其离监后可能遇到的生活困难、家庭变化、社会交往等问题进行综合分析,落实稳控措施,做好教育管理和帮扶工作,减少其重新违法犯罪的因素,预防其再违法犯罪。' :
+                           riskLevel === '一般危险' ? '该犯重新违法犯罪可能性中等,建议相关部门加强跟踪管理,定期评估其状态变化,及时调整管控措施,确保其顺利回归社会。' :
+                           '该犯重新违法犯罪可能性较低,建议相关部门保持适度关注,定期复评,确保其稳定回归社会。'}</p>
+                    </div>
+                </div>
+
+                <div class="report-footer">
+                    <div class="signature">
+                        <div class="signature-line"></div>
+                        <div class="signature-label">评估员签名</div>
+                    </div>
+                    <div class="date">
+                        <div class="date-line"></div>
+                        <div class="date-label">日期</div>
+                    </div>
+                </div>
+            `;
+
+            return reportHTML;
+        }
+
+        // 检查是否有成瘾问题，决定是否显示后果部分
+        function checkAddictionProblems() {
+            const hasAlcoholProblem = document.querySelector('input[name="q45"]:checked')?.value === '是';
+            const hasDrugProblem = document.querySelector('input[name="q46"]:checked')?.value === '是';
+            const hasGamblingProblem = document.querySelector('input[name="q47"]:checked')?.value === '是';
+
+            const consequencesSection = document.getElementById('addictionConsequences');
+            const drugTypeContainer = document.getElementById('drugTypeContainer');
+
+            // 显示/隐藏成瘾后果部分
+            if (hasAlcoholProblem || hasDrugProblem || hasGamblingProblem) {
+                consequencesSection.style.display = 'block';
+            } else {
+                consequencesSection.style.display = 'none';
+                // 清空后果问题的答案
+                document.querySelectorAll('#addictionConsequences input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                });
+                document.querySelector('#addictionConsequences textarea').value = '';
+            }
+
+            // 单独处理毒品种类输入框
+            if (hasDrugProblem) {
+                drugTypeContainer.style.display = 'block';
+                document.getElementById('drugType').required = true;
+            } else {
+                drugTypeContainer.style.display = 'none';
+                document.getElementById('drugType').required = false;
+                document.getElementById('drugType').value = '';
+            }
+        }
+
+        // 显示/隐藏子选项
+        function toggleSubOptions(optionId) {
+            const optionElement = document.getElementById(optionId);
+            const radio = event.target;
+
+            if (radio.value === '是') {
+                optionElement.style.display = 'block';
+            } else {
+                optionElement.style.display = 'none';
+                // 清空子选项
+                const checkboxes = optionElement.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                // 清空文本输入
+                const textInputs = optionElement.querySelectorAll('input[type="text"], input[type="number"]');
+                textInputs.forEach(input => {
+                    input.value = '';
+                });
+            }
+        }
+
+        // 重置表单
+        function resetForm() {
+            if (confirm('确定要重置所有填写内容吗？')) {
+                document.getElementById('riskAssessmentForm').reset();
+                // 重置后重新检查成瘾问题
+                checkAddictionProblems();
+            }
+        }
+
+
+
+        // 新建评估
+        function newAssessment() {
+            if (confirm('确定要开始新的评估吗？当前评估数据将丢失。')) {
+                resetForm();
+                openTab('form-tab');
+                document.getElementById('reportOutput').innerHTML = '';
+                document.getElementById('reportActions').style.display = 'none';
+            }
+        }
+
+        // 获取子选项文本的辅助函数
+        function getSubOptionsText(data, questionKey) {
+            let subOptions = [];
+
+            if (questionKey === 'q66') {
+                if (data.q66_a) subOptions.push('a.有脱逃史');
+                if (data.q66_b) subOptions.push('b.有前科或劣迹');
+                if (data.q66_c) subOptions.push('c.有攻击/暴力记录');
+                if (data.q66_d) subOptions.push('d.破坏监管秩序行为');
+                if (data.q66_e && data.q66_e_text) subOptions.push(`e.其他（${data.q66_e_text}）`);
+            } else if (questionKey === 'q67') {
+                if (data.q67_a) subOptions.push('a.对被害方没有感到内疚、负罪感');
+                if (data.q67_b) subOptions.push('b.对监管改造的态度差');
+                if (data.q67_c) subOptions.push('c.对法院/检察/公安机关的态度差');
+            } else if (questionKey === 'q68') {
+                if (data.q68_a) subOptions.push('a.有财务问题');
+                if (data.q68_b) subOptions.push('b.惯偷惯盗');
+                if (data.q68_c) subOptions.push('c.经常打架斗殴');
+                if (data.q68_d) subOptions.push('d.曾因同一罪名受到过处理');
+                if (data.q68_e) subOptions.push('e.缺乏支持的家庭关系');
+                if (data.q68_f) subOptions.push('f.就业从未满过一年');
+                if (data.q68_g) subOptions.push(`g.在本地区范围变更${data.q68_g_count || 0}次或以上住址`);
+                if (data.q68_h) subOptions.push('h.两次或以上戒毒失败经历');
+                if (data.q68_i) subOptions.push('i.与子女或亲属关系极差或疏远');
+                if (data.q68_j) subOptions.push('j.好逸恶劳');
+                if (data.q68_k) subOptions.push('k.经常更换或同时有多个性伴侣');
+                if (data.q68_l) subOptions.push('l.休息晚，常出入色情场所或夜不归宿');
+            } else if (questionKey === 'q69') {
+                if (data.q69_a) subOptions.push('a.行为违背社会规范，经常违法乱纪');
+                if (data.q69_b) subOptions.push('b.以自我为中心，冷漠无情');
+                if (data.q69_c) subOptions.push('c.18岁以前就出现品行问题（反复说谎、违反校规、逃学、斗殴、偷窃等）');
+            } else if (questionKey === 'q70') {
+                if (data.q70_a) subOptions.push('a.极易激惹，行为难以自控，虽有懊悔但易再犯');
+                if (data.q70_b) subOptions.push('b.人际关系紧张，几乎没有持久朋友');
+                if (data.q70_c) subOptions.push('c.情感爆发时有暴力行为（自伤或伤害他人）');
+                if (data.q70_d) subOptions.push('d.工作学习任务难以坚持');
+            } else if (questionKey === 'q71') {
+                if (data.q71_a) subOptions.push('a.敏感多疑');
+                if (data.q71_b) subOptions.push('b.容易记恨');
+                if (data.q71_c) subOptions.push('c.固执己见');
+            }
+
+            return subOptions.length > 0 ? `（${subOptions.join('、')}）` : '';
+        }
+
+        // 初始化时检查一次成瘾问题
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAddictionProblems();
+            updateHomeStats(); // 初始化主页统计
+
+            // 检查登录状态
+            checkLoginStatus();
+
+            // 绑定登录表单事件
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        });
+
+        // 检查登录状态
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const currentUser = localStorage.getItem('currentUser');
+
+            if (isLoggedIn === 'true' && currentUser) {
+                // 已登录，显示主系统
+                showMainSystem(currentUser);
+            } else {
+                // 未登录，显示登录界面
+                showLoginForm();
+            }
+        }
+
+        // 处理登录
+        function handleLogin(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            // 验证账号密码
+            if (username === 'ghjy@123' && password === 'ghjy@123') {
+                // 登录成功
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentUser', username);
+                showMainSystem(username);
+                showMessage('登录成功！欢迎使用系统', 'success');
+            } else {
+                // 登录失败
+                showMessage('用户名或密码错误！', 'error');
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+            }
+        }
+
+        // 显示主系统
+        function showMainSystem(username) {
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('mainContainer').style.display = 'block';
+            document.getElementById('currentUser').textContent = username;
+
+            // 加载历史数据
+            loadHistoryData();
+        }
+
+        // 显示登录界面
+        function showLoginForm() {
+            document.getElementById('loginContainer').style.display = 'flex';
+            document.getElementById('mainContainer').style.display = 'none';
+        }
+
+        // 退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('currentUser');
+                showLoginForm();
+                showMessage('已退出登录', 'info');
+            }
+        }
+
+        // 显示消息提示
+        function showMessage(message, type = 'info') {
+            // 创建消息元素
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            messageDiv.textContent = message;
+
+            // 添加到页面
+            document.body.appendChild(messageDiv);
+
+            // 3秒后自动移除
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.parentNode.removeChild(messageDiv);
+                }
+            }, 3000);
+        }
+
+
+
+
+            
+            // 各维度得分
+            const dimensions = [
+                { name: '犯罪经历', questions: ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'q8', 'q9', 'q10', 'q11'] },
+                { name: '早期社会化问题', questions: ['q12', 'q13', 'q14', 'q15'] },
+                { name: '家庭婚姻', questions: ['q16', 'q17', 'q18', 'q19', 'q20'] },
+                { name: '教育就业', questions: ['q21', 'q22', 'q23', 'q24', 'q25', 'q26', 'q27', 'q28', 'q29', 'q30', 'q31'] },
+                { name: '同伴交往', questions: ['q32', 'q33', 'q34'] },
+                { name: '兴趣爱好', questions: ['q35', 'q36', 'q37'] },
+                { name: '再社会化预期', questions: ['q38', 'q39', 'q40', 'q41', 'q42', 'q43', 'q44'] },
+                { name: '成瘾问题', questions: ['q45', 'q46', 'q47', 'q48', 'q49', 'q50'] },
+                { name: '犯罪助长', questions: ['q52', 'q53', 'q54', 'q55', 'q56', 'q57', 'q58', 'q59'] },
+                { name: '犯罪态度', questions: ['q60', 'q61', 'q62', 'q63', 'q64', 'q65'] },
+                { name: '行为模式', questions: ['q66', 'q67', 'q68'] },
+                { name: '人格特点', questions: ['q69', 'q70', 'q71'] }
+            ];
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>
+
